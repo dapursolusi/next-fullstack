@@ -1,4 +1,5 @@
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
@@ -21,22 +22,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **commitlint** conventional commits (`feat:`, `fix:`, `chore:`, etc.).
 - **lint-staged** runs `eslint --fix` then `prettier --write` on staged files.
 - **Testing:** Vitest (unit), Playwright (e2e). Both use `bun run`.
-- **Sentry** monitored — DSN in `SENTRY_DSN` env var.
+- **Monitoring (Sentry)** is deferred — add when you have users.
 
 ## Scripts
 
-| Command | What it does |
-|---------|-------------|
-| `bun run dev` | Dev server |
-| `bun run build` | Production build |
-| `bun run lint` | ESLint |
-| `bun run lint:fix` | ESLint with auto-fix |
-| `bun run format` | Prettier write all |
-| `bun run format:check` | Prettier check only |
-| `bun run typecheck` | `tsc --noEmit` |
-| `bun run test` | Vitest watch |
-| `bun run test:run` | Vitest single-run |
-| `bun run test:e2e` | Playwright |
+| Command                | What it does         |
+| ---------------------- | -------------------- |
+| `bun run dev`          | Dev server           |
+| `bun run build`        | Production build     |
+| `bun run lint`         | ESLint               |
+| `bun run lint:fix`     | ESLint with auto-fix |
+| `bun run format`       | Prettier write all   |
+| `bun run format:check` | Prettier check only  |
+| `bun run typecheck`    | `tsc --noEmit`       |
+| `bun run test`         | Vitest watch         |
+| `bun run test:run`     | Vitest single-run    |
+| `bun run test:e2e`     | Playwright           |
 
 ## File Structure
 
