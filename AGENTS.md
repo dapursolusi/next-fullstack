@@ -106,13 +106,6 @@ bun run test:e2e         # Playwright
 - Any decision that changes how env vars are managed or validated.
 - When choosing deployment hosting — not pre-decided in this template.
 
-## References
-
-- **Forward intent / backlog:** GitHub Issues per-project
-- **Agent protocols:** See `CLAUDE.md` (AGENT_PROTOCOL.md rules)
-- **Preflight checklist:** `/webapp-preflight` skill (SSOT at `999_my_resources/SSOT/skills/webapp-preflight/`)
-- **Known issues:** See `docs/known-issues.md` (create when you hit one)
-
 ---
 
 > **Make every line count — or delete it.**
