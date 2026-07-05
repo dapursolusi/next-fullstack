@@ -20,9 +20,9 @@ This is a full-stack Next.js template with opinionated tooling baked in. Use it 
 - **Styling:** Tailwind CSS 4 (CSS-first — no `tailwind.config.ts`) + shadcn/ui (style: base-nova, primitives: `@base-ui/react`, icons: `hugeicons`)
 - **Architecture:** Next.js App Router. Server Components by default. `"use client"` only when hooks/event handlers are needed.
 - **Key libs:** zod for all I/O boundaries (`env.mjs`). sonner for toasts. CVA + clsx for component variants.
-- **Testing:** Vitest (unit via `vite-tsconfig-paths` — reads `tsconfig.json` paths automatically). Playwright for E2E.
+- **Testing:** Vitest (unit, native `tsconfigPaths` resolution). Playwright for E2E.
 - **Data layer:** Not baked in — add Drizzle + Postgres per-project when needed. `env.mjs` ships a `DATABASE_URL` placeholder.
-- **Auth:** Not baked in — add Auth.js per-project when needed. `env.mjs` ships a `NEXTAUTH_SECRET` placeholder.
+- **Auth:** Not baked in — add Auth.js per-project when needed.
 
 ## Architecture
 
@@ -38,9 +38,8 @@ UI Component (Server Component) → Server Action → Service → ORM → DB
 
 1. Mobile-first at all times. Test at 375px before 1440px.
 2. Toast feedback (sonner) required on all user-facing mutations.
-3. shadcn/ui components in `src/components/ui/` are auto-generated — never manually edit.
-4. Check `env.mjs` before adding env vars. Add only when needed — don't pre-add "just in case".
-5. Every page must export a `metadata` object. Use `baseMetadata` from `@/lib/metadata`.
+3. Check `env.mjs` before adding env vars. Add only when needed — don't pre-add "just in case".
+4. Every page must export a `metadata` object. Use `baseMetadata` from `@/lib/metadata`.
 
 ## Forbidden
 
@@ -78,22 +77,16 @@ UI Component (Server Component) → Server Action → Service → ORM → DB
 
 ## Commands
 
+Standard scripts (`dev`, `build`, `lint`, `format`, `typecheck`, `test*`) live in `package.json`. Only the invocations that aren't discoverable from there:
+
 ```bash
-bun run dev              # Dev server
-bun run build            # Production build
-bun run lint             # ESLint
-bun run lint:fix         # ESLint with auto-fix
-bun run format           # Prettier write all
-bun run format:check     # Prettier check only
-bun run typecheck        # tsc --noEmit
-bun run test             # Vitest watch
-bun run test:run         # Vitest single-run
-bun run test:e2e         # Playwright
+bunx shadcn@latest add <component>   # Add base-nova component (NOT in package.json)
+bunx playwright install              # First-time browser binary setup
 ```
 
 ## Gotchas
 
-- ⚠️ `vite-tsconfig-paths` reads `tsconfig.json` paths for vitest — if paths change, vitest auto-adjusts.
+- ⚠️ Vitest uses native `resolve.tsconfigPaths` — reads `tsconfig.json` paths automatically, no plugin needed.
 - ⚠️ Tailwind v4 uses CSS-first config (`globals.css`). No `tailwind.config.ts`. Use `@theme inline` for custom values.
 - ⚠️ shadcn preset `bI9A` pins style, base color, icon library, and primitives in one shot — no separate flags needed.
 - ⚠️ `env.mjs` uses `@t3-oss/env-nextjs` — all env vars MUST be registered there, not read directly from `process.env`.
