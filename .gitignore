@@ -42,4 +42,7 @@ next-env.d.ts
 
 # temporary files
 /tmp
-/temp*.claude/
+/temp*
+
+# Claude
+.claude/

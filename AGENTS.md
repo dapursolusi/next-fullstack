@@ -5,57 +5,114 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-## Conventions
+## Project Context
 
-- **Package manager:** bun (not npm/pnpm). Use `bun run`, `bunx`, never `npm run` or `npx`.
-- **App Router only.** No Pages Router.
-- **Tailwind v4:** CSS-first — no `tailwind.config.ts`. No `@apply`; use `@theme inline` or plain CSS.
-- **`@/*`** maps to `./src/*` — all code lives under `src/`.
-- **shadcn/ui (base-nova):** `style: base-nova`, primitives: `@base-ui/react`, icons: `hugeicons`. Components in `src/components/ui/` are auto-generated — never manually edit.
-- **Server Components** by default. Add `"use client"` only when using hooks/event handlers.
-- **Props** must be typed with interfaces. No `any`.
-- **`env.mjs`** at root — always import `env` from `@/env.mjs`, never read `process.env` directly.
+> **Phase:** Template / Starter
+> **Team size:** Solo
+> **Primary users:** Developers bootstrapping new Next.js projects
 
-## Tooling
+This is a full-stack Next.js template with opinionated tooling baked in. Use it as a starting point for new projects — clone, rename, build.
 
-- **Prettier** with `@trivago/prettier-plugin-sort-imports` (import order: react → next → third-party → `@/components` → `@/lib` → `./relative`).
-- **commitlint** conventional commits (`feat:`, `fix:`, `chore:`, etc.).
-- **lint-staged** runs `eslint --fix` then `prettier --write` on staged files.
-- **Testing:** Vitest (unit), Playwright (e2e). Both use `bun run`.
-- **Monitoring (Sentry)** is deferred — add when you have users.
+## Stack
 
-## Scripts
+- **Runtime:** bun 1.3.13 (`@types/node` matches local runtime via bun itself)
+- **Package manager:** bun (never npm/pnpm/yarn — `bun run`, `bunx`, `bun add`)
+- **Styling:** Tailwind CSS 4 (CSS-first — no `tailwind.config.ts`) + shadcn/ui (style: base-nova, primitives: `@base-ui/react`, icons: `hugeicons`)
+- **Architecture:** Next.js App Router. Server Components by default. `"use client"` only when hooks/event handlers are needed.
+- **Key libs:** zod for all I/O boundaries (`env.mjs`). sonner for toasts. CVA + clsx for component variants.
+- **Testing:** Vitest (unit via `vite-tsconfig-paths` — reads `tsconfig.json` paths automatically). Playwright for E2E.
+- **Data layer:** Not baked in — add Drizzle + Postgres per-project when needed. `env.mjs` ships a `DATABASE_URL` placeholder.
+- **Auth:** Not baked in — add Auth.js per-project when needed. `env.mjs` ships a `NEXTAUTH_SECRET` placeholder.
 
-| Command                | What it does         |
-| ---------------------- | -------------------- |
-| `bun run dev`          | Dev server           |
-| `bun run build`        | Production build     |
-| `bun run lint`         | ESLint               |
-| `bun run lint:fix`     | ESLint with auto-fix |
-| `bun run format`       | Prettier write all   |
-| `bun run format:check` | Prettier check only  |
-| `bun run typecheck`    | `tsc --noEmit`       |
-| `bun run test`         | Vitest watch         |
-| `bun run test:run`     | Vitest single-run    |
-| `bun run test:e2e`     | Playwright           |
-
-## File Structure
+## Architecture
 
 ```
-src/
-├── app/          → App Router pages
-├── components/
-│   ├── layout/   → Header, Footer, MobileMenu, etc.
-│   ├── sections/ → Page-specific sections
-│   └── ui/       → shadcn/base-nova (auto-generated)
-├── lib/          → Utilities, constants, metadata
-└── types/        → Shared TypeScript types (add as needed)
+UI Component (Server Component) → Server Action → Service → ORM → DB
 ```
 
-## Apply the full preflight checklist
+- **API:** Server Actions only. No `api/` routes (except Stripe/cron/webhooks per-project — not in template).
+- **Data flow:** Server Components fetch data directly. Server Actions for mutations. React Query only if per-project needs client-side caching.
+- **File placement:** All source code under `src/`. `@/*` maps to `./src/*`.
+
+## Rules
+
+1. Mobile-first at all times. Test at 375px before 1440px.
+2. Toast feedback (sonner) required on all user-facing mutations.
+3. shadcn/ui components in `src/components/ui/` are auto-generated — never manually edit.
+4. Check `env.mjs` before adding env vars. Add only when needed — don't pre-add "just in case".
+5. Every page must export a `metadata` object. Use `baseMetadata` from `@/lib/metadata`.
+
+## Forbidden
+
+- ❌ NO `npm run` / `npx` — use `bun run` / `bunx`
+- ❌ NO `any` types — use `unknown` or a proper interface
+- ❌ NO `console.log` in production code — use `console.warn`/`console.error` only
+- ❌ NO refactoring working legacy code unless told to
+- ❌ NO `@apply` in CSS — Tailwind v4 doesn't support it
+- ❌ NO editing `src/components/ui/` — shadcn base-nova components are auto-generated
+
+## Naming Conventions
+
+| Entity                     | Convention           | Example           |
+| :------------------------- | :------------------- | :---------------- |
+| Components                 | PascalCase           | `UserProfile.tsx` |
+| Utilities                  | camelCase            | `formatDate.ts`   |
+| Functions                  | camelCase            | `getUserById()`   |
+| Props interfaces           | PascalCase, I-prefix | `IButtonProps`    |
+| Types                      | PascalCase, T-prefix | `TComponentProps` |
+| Constants                  | UPPER_SNAKE          | `MAX_RETRY_COUNT` |
+| File names (non-component) | kebab-case           | `api-endpoint.ts` |
+
+## File Placement
+
+| Component Type        | Location                   | Notes                             |
+| :-------------------- | :------------------------- | :-------------------------------- |
+| Page/Layout           | `src/app/`                 | App Router conventions            |
+| Cross-page sections   | `src/components/sections/` | Grouped by page                   |
+| Layout components     | `src/components/layout/`   | Header, Footer, MobileMenu        |
+| Shared UI primitives  | `src/components/ui/`       | shadcn base-nova (auto-generated) |
+| Utilities & constants | `src/lib/`                 | metadata, security-headers, utils |
+| Types                 | `src/types/`               | Add per-project as needed         |
+| Tests (unit)          | `tests/`                   | Vitest                            |
+| Tests (E2E)           | `e2e/`                     | Playwright                        |
+
+## Commands
 
 ```bash
-/claude-code-skills webapp-preflight
+bun run dev              # Dev server
+bun run build            # Production build
+bun run lint             # ESLint
+bun run lint:fix         # ESLint with auto-fix
+bun run format           # Prettier write all
+bun run format:check     # Prettier check only
+bun run typecheck        # tsc --noEmit
+bun run test             # Vitest watch
+bun run test:run         # Vitest single-run
+bun run test:e2e         # Playwright
 ```
 
-This runs preflight, CI, testing, env-validation, security-headers, and SEO setup in sequence.
+## Gotchas
+
+- ⚠️ `vite-tsconfig-paths` reads `tsconfig.json` paths for vitest — if paths change, vitest auto-adjusts.
+- ⚠️ Tailwind v4 uses CSS-first config (`globals.css`). No `tailwind.config.ts`. Use `@theme inline` for custom values.
+- ⚠️ shadcn preset `bI9A` pins style, base color, icon library, and primitives in one shot — no separate flags needed.
+- ⚠️ `env.mjs` uses `@t3-oss/env-nextjs` — all env vars MUST be registered there, not read directly from `process.env`.
+- ⚠️ Port 3000 must be free. Kill stale Next.js procs first.
+
+## When to Ask
+
+- If stuck after **2 attempts** → log blockers and ask.
+- Any decision that adds a new npm package or changes the data layer.
+- Any decision that changes how env vars are managed or validated.
+- When choosing deployment hosting — not pre-decided in this template.
+
+## References
+
+- **Forward intent / backlog:** GitHub Issues per-project
+- **Agent protocols:** See `CLAUDE.md` (AGENT_PROTOCOL.md rules)
+- **Preflight checklist:** `/webapp-preflight` skill (SSOT at `999_my_resources/SSOT/skills/webapp-preflight/`)
+- **Known issues:** See `docs/known-issues.md` (create when you hit one)
+
+---
+
+> **Make every line count — or delete it.**
